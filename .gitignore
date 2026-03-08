@@ -1,0 +1,25 @@
+# Project ignores
+.DS_Store
+
+# Chat app outputs
+.data
+.nuxt
+.nitro
+.output
+.cache
+dist
+node_modules
+logs
+*.log
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Editor state
+.fleet
+.idea
+.history
+.vercel
+.env*.local
