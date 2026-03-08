@@ -7,7 +7,7 @@ import { useToast } from '~/composables/useToast'
 const route = useRoute()
 const toast = useToast()
 const overlay = useOverlay()
-const { loggedIn, openInPopup } = useUserSession()
+const { isLoaded, isSignedIn } = useAuth()
 const { csrf, headerName } = useCsrf()
 
 const open = useState<boolean>('sidebar-open', () => false)
@@ -39,7 +39,7 @@ onNuxtReady(async () => {
   }
 })
 
-watch(loggedIn, () => {
+watch(isSignedIn, () => {
   refreshChats()
 
   open.value = false
@@ -176,16 +176,21 @@ defineShortcuts({
         </div>
 
         <div class="mt-4 border-t border-base-300/80 pt-4">
-          <UserMenu v-if="loggedIn" :collapsed="collapsed" />
-          <button
-            v-else
-            class="btn h-9 min-h-9 w-[calc(100%-0.5rem)] mx-auto gap-2 rounded-2xl border border-base-300/80 bg-base-100 shadow hover:bg-base-200"
-            :class="collapsed ? 'justify-center px-0 w-full' : 'justify-start'"
-            @click="openInPopup('/auth/github')"
+          <UserMenu v-if="isLoaded && isSignedIn" :collapsed="collapsed" />
+          <SignInButton
+            v-else-if="isLoaded"
+            mode="modal"
+            force-redirect-url="/dashboard"
+            fallback-redirect-url="/dashboard"
           >
-            <Icon name="simple-icons:github" class="h-4 w-4" />
-            <span v-if="!collapsed" class="text-[13px] font-medium">Login with GitHub</span>
-          </button>
+            <button
+              class="btn h-9 min-h-9 w-[calc(100%-0.5rem)] mx-auto gap-2 rounded-2xl border border-base-300/80 bg-base-100 shadow hover:bg-base-200"
+              :class="collapsed ? 'justify-center px-0 w-full' : 'justify-start'"
+            >
+              <Icon name="simple-icons:google" class="h-4 w-4" />
+              <span v-if="!collapsed" class="text-[13px] font-medium">Continue with Google</span>
+            </button>
+          </SignInButton>
         </div>
       </div>
     </aside>

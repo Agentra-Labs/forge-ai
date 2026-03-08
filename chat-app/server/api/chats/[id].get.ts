@@ -1,9 +1,10 @@
 import { db, schema } from 'hub:db'
 import { and, asc, eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { getViewerIdentity } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
-  const session = await getUserSession(event)
+  const viewer = await getViewerIdentity(event)
 
   const { id } = await getValidatedRouterParams(event, z.object({
     id: z.string()
@@ -12,7 +13,7 @@ export default defineEventHandler(async (event) => {
   const chat = await db.query.chats.findFirst({
     where: () => and(
       eq(schema.chats.id, id as string),
-      eq(schema.chats.userId, session.user?.id || session.id)
+      eq(schema.chats.userId, viewer.id)
     ),
     with: {
       messages: {

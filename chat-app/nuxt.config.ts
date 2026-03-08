@@ -2,12 +2,12 @@
 import tailwindcss from '@tailwindcss/vite'
 export default defineNuxtConfig({
     modules: [
+        '@clerk/nuxt',
         '@nuxt/eslint',
         '@nuxt/icon',
         '@nuxtjs/color-mode',
         '@nuxtjs/mdc',
         '@nuxthub/core',
-        'nuxt-auth-utils',
         'nuxt-charts',
         'nuxt-csurf'
     ],
@@ -30,6 +30,17 @@ export default defineNuxtConfig({
 
     experimental: {
         viewTransition: true
+    },
+
+    runtimeConfig: {
+        agnoBackendUrl: process.env.AGNO_BACKEND_URL || 'http://localhost:7777'
+    },
+
+    clerk: {
+        signInForceRedirectUrl: '/dashboard',
+        signInFallbackRedirectUrl: '/dashboard',
+        signUpForceRedirectUrl: '/dashboard',
+        signUpFallbackRedirectUrl: '/dashboard'
     },
 
     compatibilityDate: '2024-07-11',

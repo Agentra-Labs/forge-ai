@@ -20,12 +20,36 @@ The app workspace is built around:
 
 ## Repository Layout
 
-- [`chat-app/`](./chat-app): Nuxt application for the Forge landing page and research workspace
+- [`chat-app/`](./chat-app): Nuxt application for the Forge landing page, chat interface, and proxy API
+- [`research_agent/`](./research_agent): Python/Agno backend running the agentic workflow on Amazon Nova (AWS Bedrock)
 - [`LICENSE`](./LICENSE): repository license
 
 ## Local Development
 
-From the `chat-app` directory:
+Forge runs as a two-part system: a Nuxt frontend and a Python/Agno backend.
+
+### 1. Start the Agno Research Backend
+The backend requires AWS credentials to access Amazon Nova models via Bedrock.
+
+```bash
+cd research_agent
+
+# Install dependencies using uv
+uv sync
+
+# Configure your environment variables
+cp .env.example .env
+# Edit .env and add your AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION
+
+# Create the sqlite database directory
+mkdir -p tmp
+
+# Start the AgentOS server (runs on port 7777)
+uv run python main.py
+```
+
+### 2. Start the Nuxt Frontend
+In a new terminal window:
 
 ```bash
 cd chat-app
@@ -33,9 +57,12 @@ bun install
 bun run dev
 ```
 
-Useful commands:
+The application will be available at `http://localhost:3000`.
+
+### Tooling Commands (Frontend)
 
 ```bash
+cd chat-app
 bun run typecheck
 bun run lint
 bun run build

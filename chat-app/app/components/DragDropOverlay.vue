@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Motion } from 'motion-v'
 
-const { loggedIn } = useUserSession()
+const { isLoaded, isSignedIn } = useAuth()
+
+const canUpload = computed(() => isLoaded.value && isSignedIn.value)
 
 defineProps<{
   show: boolean
@@ -10,7 +12,7 @@ defineProps<{
 
 <template>
   <div
-    v-if="show && loggedIn"
+    v-if="show && canUpload"
     class="absolute inset-0 z-50 flex items-center justify-center backdrop-blur-lg rounded-lg pointer-events-none"
   >
     <div class="absolute text-center">

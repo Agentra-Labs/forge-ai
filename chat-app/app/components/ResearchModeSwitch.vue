@@ -23,7 +23,7 @@ const { mode, modes } = useResearchMode()
         @click="mode = option.value"
       >
         <div class="flex items-center gap-2">
-          <Icon :name="option.value === 'deep' ? 'lucide:scan-search' : 'lucide:network'" class="h-4 w-4" />
+          <Icon :name="option.icon" class="h-4 w-4" />
           <span class="text-sm font-medium">{{ option.label }}</span>
         </div>
         <p v-if="!compact" class="mt-1 text-xs leading-5" :class="mode === option.value ? 'text-primary-content/80' : 'text-base-content/60'">

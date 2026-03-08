@@ -143,7 +143,8 @@ function useLocalFileUpload(options: FileUploadOptions) {
 export function useFileUploadWithStatus(chatId: string) {
     const files = ref<FileWithStatus[]>([])
     const toast = useToast()
-    const { loggedIn } = useUserSession()
+    const { isLoaded, isSignedIn } = useAuth()
+    const canUpload = computed(() => isLoaded.value && isSignedIn.value)
 
     const { csrf, headerName } = useCsrf()
 
@@ -153,7 +154,13 @@ export function useFileUploadWithStatus(chatId: string) {
     })
 
     async function uploadFiles(newFiles: File[]) {
-        if (!loggedIn.value) {
+        if (!canUpload.value) {
+            toast.add({
+                title: 'Sign in required',
+                description: 'Sign in with Google to upload files.',
+                icon: 'lucide:log-in',
+                color: 'warning'
+            })
             return
         }
 

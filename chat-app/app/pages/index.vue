@@ -3,7 +3,7 @@ definePageMeta({
   layout: false
 })
 
-const { loggedIn, openInPopup } = useUserSession()
+const { isLoaded, isSignedIn } = useAuth()
 
 const modeCards = [
   {
@@ -68,13 +68,16 @@ const outputRows = [
         </NuxtLink>
 
         <div class="flex items-center gap-2">
-          <button
-            v-if="!loggedIn"
-            class="btn btn-ghost btn-sm rounded-full px-4"
-            @click="openInPopup('/auth/github')"
+          <SignInButton
+            v-if="isLoaded && !isSignedIn"
+            mode="modal"
+            force-redirect-url="/dashboard"
+            fallback-redirect-url="/dashboard"
           >
-            Sign in
-          </button>
+            <button class="btn btn-ghost btn-sm rounded-full px-4">
+              Sign in
+            </button>
+          </SignInButton>
           <NuxtLink to="/dashboard" class="btn btn-primary btn-sm rounded-full px-4">
             Open Dashboard
           </NuxtLink>
@@ -111,13 +114,17 @@ const outputRows = [
               <NuxtLink to="/dashboard" class="btn btn-primary rounded-full px-5">
                 Open Workspace
               </NuxtLink>
-              <button
-                v-if="!loggedIn"
-                class="btn btn-outline rounded-full px-5"
-                @click="openInPopup('/auth/github')"
+              <SignInButton
+                v-if="isLoaded && !isSignedIn"
+                mode="modal"
+                force-redirect-url="/dashboard"
+                fallback-redirect-url="/dashboard"
               >
-                Sign in with GitHub
-              </button>
+                <button class="btn btn-outline rounded-full px-5">
+                  <Icon name="simple-icons:google" class="h-4 w-4" />
+                  Continue with Google
+                </button>
+              </SignInButton>
             </div>
 
             <div class="flex flex-wrap gap-2">

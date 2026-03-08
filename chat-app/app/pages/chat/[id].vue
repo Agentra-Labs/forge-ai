@@ -18,6 +18,18 @@ const clipboard = useClipboard()
 const { model } = useModels()
 const { mode } = useResearchMode()
 
+// Agno research backend integration
+const research = useResearch({
+  onError: (err) => {
+    toast.add({
+      description: `Research error: ${err}`,
+      icon: 'i-lucide-alert-circle',
+      color: 'error',
+      duration: 5000
+    })
+  }
+})
+
 function getFileName(url: string): string {
   try {
     const urlObj = new URL(url)
@@ -85,10 +97,20 @@ const isStreaming = computed(() => (chat.status as string) === 'streaming')
 async function handleSubmit(e: Event) {
   e.preventDefault()
   if (input.value.trim() && !isUploading.value) {
+    const query = input.value
+
+    // Send to the standard ai-sdk chat stream
     chat.sendMessage({
-      text: input.value,
+      text: query,
       files: uploadedFiles.value.length > 0 ? uploadedFiles.value : undefined
     })
+
+    // Also trigger the Agno research backend in parallel
+    research.run({
+      goal: query,
+      mode: mode.value === 'deep' ? 'deep' : 'wide',
+    })
+
     input.value = ''
     clearFiles()
   }
@@ -217,6 +239,26 @@ onMounted(() => {
                         </button>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <!-- Agno Research Stream -->
+                <div v-if="research.isRunning.value || research.content.value" class="flex justify-start">
+                  <div class="w-full max-w-[92%] sm:max-w-[82%]">
+                    <div class="mb-2 flex items-center gap-2 px-1 text-xs uppercase tracking-[0.2em] text-base-content/45">
+                      <Icon name="lucide:sparkles" class="h-3 w-3 text-primary" />
+                      <span>Research Agent</span>
+                      <span class="rounded-full border border-primary/30 px-2 py-0.5 text-[10px] tracking-[0.16em] text-primary/70">
+                        {{ mode === 'deep' ? 'Deep analysis' : 'Wide scan' }}
+                      </span>
+                    </div>
+                    <ResearchStream
+                      :steps="research.steps.value"
+                      :current-step="research.currentStep.value"
+                      :is-running="research.isRunning.value"
+                      :content="research.content.value"
+                      :error="research.error.value"
+                    />
                   </div>
                 </div>
 
