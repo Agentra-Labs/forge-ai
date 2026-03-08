@@ -7,19 +7,13 @@ defineProps<{
 </script>
 
 <template>
-  <UTooltip
-    :content="{
-      side: 'top'
-    }"
-    :text="!loggedIn ? 'You need to be logged in to upload files' : ''"
-  >
-    <UButton
-      icon="i-lucide-paperclip"
-      variant="ghost"
-      color="neutral"
-      size="sm"
+  <div class="tooltip tooltip-top" :data-tip="!loggedIn ? 'You need to be logged in to upload files' : ''">
+    <button
+      class="btn btn-ghost btn-sm"
       :disabled="!loggedIn"
       @click="open()"
-    />
-  </UTooltip>
+    >
+      <Icon name="lucide:paperclip" class="w-4 h-4" />
+    </button>
+  </div>
 </template>

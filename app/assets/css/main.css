@@ -1,16 +1,66 @@
-@import "tailwindcss" theme(static);
-@import "@nuxt/ui";
-
-@theme static {
-  --font-sans: 'Public Sans', sans-serif;
+@import "tailwindcss";
+@plugin "daisyui" {
+    themes: all;
 }
 
 @layer base {
-  body {
-    @apply bg-neutral-50 dark:bg-neutral-950;
+  :root {
+    color-scheme: dark;
+    --font-body: "Manrope", "Segoe UI", sans-serif;
+    --font-display: "Space Grotesk", "Avenir Next", sans-serif;
   }
-}
 
-:root {
-  --ui-container: var(--container-3xl);
+  html {
+    min-height: 100%;
+    background:
+      radial-gradient(circle at top, color-mix(in oklab, oklch(var(--p)) 14%, transparent) 0%, transparent 36%),
+      linear-gradient(180deg, oklch(var(--b3)) 0%, oklch(var(--b1)) 22%, oklch(var(--b1)) 100%);
+  }
+
+  body {
+    min-height: 100vh;
+    background: transparent;
+    font-family: var(--font-body);
+    font-feature-settings: "ss01" 1, "cv02" 1, "cv03" 1;
+    text-rendering: optimizeLegibility;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.03em;
+  }
+
+  button,
+  input,
+  textarea,
+  select,
+  summary,
+  .btn,
+  .input,
+  .textarea,
+  .select {
+    font-family: var(--font-body);
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .btn,
+  .input,
+  .textarea,
+  .select {
+    font-size: 0.925rem;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, oklch(var(--p)) 32%, transparent);
+  }
 }

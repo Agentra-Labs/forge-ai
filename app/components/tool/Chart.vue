@@ -58,7 +58,7 @@ const formatValue = (value: string | number | undefined): string => {
 <template>
   <div v-if="invocation.state === 'output-available'" class="my-5">
     <div v-if="invocation.output.title" class="flex items-center gap-2 mb-2">
-      <UIcon name="i-lucide-line-chart" class="size-5 text-primary shrink-0" />
+      <Icon name="lucide:line-chart" class="size-5 text-primary shrink-0" />
       <div class="min-w-0">
         <h3 class="text-lg font-semibold truncate">
           {{ invocation.output.title }}
@@ -116,8 +116,8 @@ const formatValue = (value: string | number | undefined): string => {
   <div v-else class="rounded-xl px-5 py-4 my-5" :class="color">
     <div class="flex items-center justify-center h-44">
       <div class="text-center">
-        <UIcon
-          :name="icon"
+        <Icon
+          :name="icon.replace('i-', '').replace('-', ':')"
           class="size-8 mx-auto mb-2"
           :class="[invocation.state === 'input-streaming' && 'animate-spin']"
         />
@@ -136,9 +136,9 @@ const formatValue = (value: string | number | undefined): string => {
   --vis-tooltip-border-color: transparent !important;
 
   --vis-axis-grid-color: rgba(255, 255, 255, 0) !important;
-  --vis-axis-tick-label-color: var(--ui-text-muted) !important;
-  --vis-axis-label-color: var(--ui-text-toned) !important;
-  --vis-legend-label-color: var(--ui-text-muted) !important;
+  --vis-axis-tick-label-color: var(--fallback-bc,oklch(var(--bc)/0.6)) !important;
+  --vis-axis-label-color: var(--fallback-bc,oklch(var(--bc)/0.8)) !important;
+  --vis-legend-label-color: var(--fallback-bc,oklch(var(--bc)/0.6)) !important;
 
   --dot-pattern-color: #111827;
 }

@@ -8,23 +8,14 @@ const emit = defineEmits<{ close: [boolean] }>()
 </script>
 
 <template>
-  <UModal
-    :title="title"
-    :description="description"
-    :ui="{
-      footer: 'flex-row-reverse justify-start'
-    }"
-    :close="false"
-    :dismissible="false"
-  >
-    <template #footer>
-      <UButton label="Delete" @click="emit('close', true)" />
-      <UButton
-        color="neutral"
-        variant="ghost"
-        label="Cancel"
-        @click="emit('close', false)"
-      />
-    </template>
-  </UModal>
+  <dialog class="modal modal-open">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">{{ title }}</h3>
+      <p class="py-4">{{ description }}</p>
+      <div class="modal-action flex flex-row-reverse justify-start">
+        <button class="btn btn-primary" @click="emit('close', true)">Delete</button>
+        <button class="btn btn-ghost" @click="emit('close', false)">Cancel</button>
+      </div>
+    </div>
+  </dialog>
 </template>

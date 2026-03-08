@@ -45,8 +45,8 @@ const message = computed(() => {
 
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
-          <UIcon
-            :name="invocation.output.condition.icon"
+          <Icon
+            :name="invocation.output.condition.icon.replace('i-', '').replace('-', ':')"
             class="size-6 text-white"
           />
           <div class="text-sm font-medium">
@@ -56,11 +56,11 @@ const message = computed(() => {
 
         <div class="flex gap-3 text-xs">
           <div class="flex items-center gap-1">
-            <UIcon name="i-lucide-droplets" class="size-3 text-blue-200" />
+            <Icon name="lucide:droplets" class="size-3 text-blue-200" />
             <span>{{ invocation.output.humidity }}%</span>
           </div>
           <div class="flex items-center gap-1">
-            <UIcon name="i-lucide-wind" class="size-3 text-blue-200" />
+            <Icon name="lucide:wind" class="size-3 text-blue-200" />
             <span>{{ invocation.output.windSpeed }} km/h</span>
           </div>
         </div>
@@ -76,8 +76,8 @@ const message = computed(() => {
             {{ forecast.day }}
           </div>
 
-          <UIcon
-            :name="forecast.condition.icon"
+          <Icon
+            :name="forecast.condition.icon.replace('i-', '').replace('-', ':')"
             class="size-5 text-white"
           />
           <div class="text-xs font-medium">
@@ -100,8 +100,8 @@ const message = computed(() => {
 
     <div v-else class="flex items-center justify-center h-44">
       <div class="text-center">
-        <UIcon
-          :name="icon"
+        <Icon
+          :name="icon.replace('i-', '').replace('-', ':')"
           class="size-8 mx-auto mb-2"
           :class="[invocation.state === 'input-streaming' && 'animate-spin']"
         />

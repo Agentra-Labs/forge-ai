@@ -1,60 +1,63 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import tailwindcss from '@tailwindcss/vite'
 export default defineNuxtConfig({
-  modules: [
-    '@nuxt/eslint',
-    '@nuxt/ui',
-    '@nuxtjs/mdc',
-    '@nuxthub/core',
-    'nuxt-auth-utils',
-    'nuxt-charts',
-    'nuxt-csurf'
-  ],
+    modules: [
+        '@nuxt/eslint',
+        '@nuxt/icon',
+        '@nuxtjs/color-mode',
+        '@nuxtjs/mdc',
+        '@nuxthub/core',
+        'nuxt-auth-utils',
+        'nuxt-charts',
+        'nuxt-csurf'
+    ],
 
-  devtools: {
-    enabled: true
-  },
-
-  css: ['~/assets/css/main.css'],
-
-  mdc: {
-    headings: {
-      anchorLinks: false
+    devtools: {
+        enabled: true
     },
-    highlight: {
-      // noApiRoute: true
-      shikiEngine: 'javascript'
-    }
-  },
 
-  experimental: {
-    viewTransition: true
-  },
+    css: ['~/assets/css/main.css'],
 
-  compatibilityDate: '2024-07-11',
+    mdc: {
+        headings: {
+            anchorLinks: false
+        },
+        highlight: {
+            // noApiRoute: true
+            shikiEngine: 'javascript'
+        }
+    },
 
-  nitro: {
     experimental: {
-      openAPI: true
-    }
-  },
+        viewTransition: true
+    },
 
-  hub: {
-    db: 'sqlite',
-    blob: true
-  },
+    compatibilityDate: '2024-07-11',
 
-  vite: {
-    optimizeDeps: {
-      include: ['striptags']
-    }
-  },
+    nitro: {
+        experimental: {
+            openAPI: true
+        }
+    },
 
-  eslint: {
-    config: {
-      stylistic: {
-        commaDangle: 'never',
-        braceStyle: '1tbs'
-      }
+    hub: {
+        db: 'sqlite',
+        blob: true
+    },
+
+    vite: {
+        optimizeDeps: {
+            include: ['striptags']
+        },
+        plugins: [tailwindcss() as any]
+    },
+
+    eslint: {
+        config: {
+            stylistic: {
+                commaDangle: 'never',
+                braceStyle: '1tbs'
+            }
+        }
     }
-  }
 })
