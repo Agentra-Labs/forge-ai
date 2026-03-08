@@ -1,181 +1,57 @@
 <script setup lang="ts">
-import type { DropdownMenuItem } from '@nuxt/ui'
-
 defineProps<{
   collapsed?: boolean
 }>()
 
 const colorMode = useColorMode()
-const appConfig = useAppConfig()
 const { user, clear } = useUserSession()
 
-const colors = ['red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose']
-const neutrals = ['slate', 'gray', 'zinc', 'neutral', 'stone']
-
-const items = computed<DropdownMenuItem[][]>(() => ([[{
-  type: 'label',
-  label: user.value?.name || user.value?.username,
-  avatar: {
-    src: user.value?.avatar,
-    alt: user.value?.name || user.value?.username
-  }
-}], [{
-  label: 'Theme',
-  icon: 'i-lucide-palette',
-  children: [{
-    label: 'Primary',
-    slot: 'chip',
-    chip: appConfig.ui.colors.primary,
-    content: {
-      align: 'center',
-      collisionPadding: 16
-    },
-    children: colors.map(color => ({
-      label: color,
-      chip: color,
-      slot: 'chip',
-      checked: appConfig.ui.colors.primary === color,
-      type: 'checkbox',
-      onSelect: (e) => {
-        e.preventDefault()
-
-        appConfig.ui.colors.primary = color
-      }
-    }))
-  }, {
-    label: 'Neutral',
-    slot: 'chip',
-    chip: appConfig.ui.colors.neutral === 'neutral' ? 'old-neutral' : appConfig.ui.colors.neutral,
-    content: {
-      align: 'end',
-      collisionPadding: 16
-    },
-    children: neutrals.map(color => ({
-      label: color,
-      chip: color === 'neutral' ? 'old-neutral' : color,
-      slot: 'chip',
-      type: 'checkbox',
-      checked: appConfig.ui.colors.neutral === color,
-      onSelect: (e) => {
-        e.preventDefault()
-
-        appConfig.ui.colors.neutral = color
-      }
-    }))
-  }]
-}, {
-  label: 'Appearance',
-  icon: 'i-lucide-sun-moon',
-  children: [{
-    label: 'Light',
-    icon: 'i-lucide-sun',
-    type: 'checkbox',
-    checked: colorMode.value === 'light',
-    onSelect(e: Event) {
-      e.preventDefault()
-
-      colorMode.preference = 'light'
-    }
-  }, {
-    label: 'Dark',
-    icon: 'i-lucide-moon',
-    type: 'checkbox',
-    checked: colorMode.value === 'dark',
-    onUpdateChecked(checked: boolean) {
-      if (checked) {
-        colorMode.preference = 'dark'
-      }
-    },
-    onSelect(e: Event) {
-      e.preventDefault()
-    }
-  }]
-}], [{
-  label: 'Templates',
-  icon: 'i-lucide-layout-template',
-  children: [{
-    label: 'Starter',
-    to: 'https://starter-template.nuxt.dev/'
-  }, {
-    label: 'Landing',
-    to: 'https://landing-template.nuxt.dev/'
-  }, {
-    label: 'Docs',
-    to: 'https://docs-template.nuxt.dev/'
-  }, {
-    label: 'SaaS',
-    to: 'https://saas-template.nuxt.dev/'
-  }, {
-    label: 'Dashboard',
-    to: 'https://dashboard-template.nuxt.dev/'
-  }, {
-    label: 'Chat',
-    to: 'https://chat-template.nuxt.dev/',
-    color: 'primary',
-    checked: true,
-    type: 'checkbox'
-  }, {
-    label: 'Portfolio',
-    to: 'https://portfolio-template.nuxt.dev/'
-  }, {
-    label: 'Changelog',
-    to: 'https://changelog-template.nuxt.dev/'
-  }]
-}], [{
-  label: 'Documentation',
-  icon: 'i-lucide-book-open',
-  to: 'https://ui.nuxt.com/docs/getting-started/installation/nuxt',
-  target: '_blank'
-}, {
-  label: 'GitHub repository',
-  icon: 'i-simple-icons-github',
-  to: 'https://github.com/nuxt-ui-templates/chat',
-  target: '_blank'
-}], [{
-  label: 'Log out',
-  icon: 'i-lucide-log-out',
-  onSelect() {
-    clear()
-    navigateTo('/')
-  }
-}]]))
+function logout() {
+  clear()
+  navigateTo('/')
+}
 </script>
 
 <template>
-  <UDropdownMenu
-    :items="items"
-    :content="{ align: 'center', collisionPadding: 12 }"
-    :ui="{ content: collapsed ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)' }"
-  >
-    <UButton
-      v-bind="{
-        label: collapsed ? undefined : (user?.name || user?.username),
-        trailingIcon: collapsed ? undefined : 'i-lucide-chevrons-up-down'
-      }"
-      :avatar="{
-        src: user?.avatar || undefined,
-        alt: user?.name || user?.username
-      }"
-      color="neutral"
-      variant="ghost"
-      block
-      :square="collapsed"
-      class="data-[state=open]:bg-elevated"
-      :ui="{
-        trailingIcon: 'text-dimmed'
-      }"
-    />
-
-    <template #chip-leading="{ item }">
-      <div class="inline-flex items-center justify-center shrink-0 size-5">
-        <span
-          class="rounded-full ring ring-bg bg-(--chip-light) dark:bg-(--chip-dark) size-2"
-          :style="{
-            '--chip-light': `var(--color-${(item as any).chip}-500)`,
-            '--chip-dark': `var(--color-${(item as any).chip}-400)`
-          }"
-        />
+  <div class="dropdown dropdown-end w-full">
+    <div
+      tabindex="0"
+      role="button"
+      class="flex w-full items-center gap-3 rounded-2xl border border-base-300/80 bg-base-100/72 px-3 py-3 text-left transition-colors hover:bg-base-100"
+    >
+      <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-base-300">
+        <img v-if="user?.avatar" :src="user.avatar" :alt="user?.name || user?.username" class="h-full w-full rounded-2xl object-cover" />
+        <span v-else class="text-sm font-medium">{{ (user?.name || user?.username || '?').charAt(0).toUpperCase() }}</span>
       </div>
-    </template>
-  </UDropdownMenu>
+      <div class="min-w-0 flex-1" v-if="!collapsed">
+        <p class="truncate text-sm font-medium">{{ user?.name || user?.username }}</p>
+        <p class="truncate text-xs text-base-content/55">@{{ user?.username }}</p>
+      </div>
+      <Icon v-if="!collapsed" name="lucide:chevrons-up-down" class="h-4 w-4 text-base-content/45" />
+    </div>
+
+    <ul tabindex="0" class="menu dropdown-content z-[1] mt-3 w-56 rounded-2xl border border-base-300/80 bg-base-100 p-2 shadow-xl">
+      <li class="menu-title px-3 pb-1">
+        <span>{{ user?.name || user?.username }}</span>
+      </li>
+      <li>
+        <a @click.prevent="colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'">
+          <Icon :name="colorMode.value === 'dark' ? 'lucide:moon' : 'lucide:sun'" class="h-4 w-4" />
+          Toggle Theme
+        </a>
+      </li>
+      <li>
+        <NuxtLink to="/dashboard">
+          <Icon name="lucide:layout-dashboard" class="h-4 w-4" />
+          Dashboard
+        </NuxtLink>
+      </li>
+      <li>
+        <a class="text-error" @click="logout">
+          <Icon name="lucide:log-out" class="h-4 w-4" />
+          Log out
+        </a>
+      </li>
+    </ul>
+  </div>
 </template>

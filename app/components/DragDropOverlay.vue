@@ -33,7 +33,7 @@ defineProps<{
             delay: 0
           }"
         >
-          <UIcon name="i-lucide-file-text" class="size-12" />
+          <Icon name="lucide:file-text" class="w-12 h-12 text-base-content/70" />
         </Motion>
         <Motion
           :initial="{
@@ -53,7 +53,7 @@ defineProps<{
             delay: 0.03
           }"
         >
-          <UIcon name="i-lucide-file" class="size-14" />
+          <Icon name="lucide:file" class="w-14 h-14 text-base-content" />
         </Motion>
 
         <Motion
@@ -74,7 +74,7 @@ defineProps<{
             delay: 0.06
           }"
         >
-          <UIcon name="i-lucide-file-spreadsheet" class="size-12" />
+          <Icon name="lucide:file-spreadsheet" class="w-12 h-12 text-base-content/70" />
         </Motion>
       </div>
 

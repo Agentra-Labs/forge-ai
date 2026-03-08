@@ -19,11 +19,10 @@ logs
 .idea
 
 # Local env files
-.env
-.env.*
 !.env.example
 
 # VSC
 .history
 .vercel
 .env*.local
+config.bat

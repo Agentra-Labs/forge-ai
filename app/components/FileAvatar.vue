@@ -20,38 +20,34 @@ const emit = defineEmits<{
 
 <template>
   <div class="relative group">
-    <UTooltip :text="removeRandomSuffix(name)">
-      <UAvatar
-        size="2xl"
-        :src="type.startsWith('image/') ? previewUrl : undefined"
-        :icon="getFileIcon(type, name)"
-        class="rounded-lg"
-        :class="{
-          'opacity-50': status === 'uploading'
-        }"
-      />
-    </UTooltip>
+    <div class="tooltip tooltip-bottom" :data-tip="removeRandomSuffix(name)">
+      <div class="avatar transition-opacity" :class="{'opacity-50': status === 'uploading'}">
+        <div class="w-16 rounded-lg bg-base-200 relative flex items-center justify-center">
+          <img v-if="type.startsWith('image/') && previewUrl" :src="previewUrl" :alt="name" class="object-cover w-full h-full" />
+          <Icon v-else :name="getFileIcon(type, name).replace('i-', '').replace('-', ':')" class="w-8 h-8 text-base-content/50" />
+        </div>
+      </div>
+    </div>
 
     <div
       v-if="status === 'uploading'"
       class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg"
     >
-      <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-white" />
+      <Icon name="lucide:loader-2" class="size-6 animate-spin text-white" />
     </div>
 
-    <UTooltip v-if="status === 'error'" :text="error">
+    <div v-if="status === 'error'" class="tooltip tooltip-bottom" :data-tip="error">
       <div class="absolute inset-0 flex items-center justify-center bg-error/50 rounded-lg">
-        <UIcon name="i-lucide-alert-circle" class="size-6 text-white" />
+        <Icon name="lucide:alert-circle" class="size-6 text-white" />
       </div>
-    </UTooltip>
+    </div>
 
-    <UButton
+    <button
       v-if="removable && status !== 'uploading'"
-      icon="i-lucide-x"
-      size="xs"
-      color="neutral"
-      class="absolute p-0 -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity rounded-full ring ring-bg"
+      class="btn btn-circle btn-xs btn-ghost bg-base-100 hover:bg-base-200 absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity ring-1 ring-base-300"
       @click="emit('remove')"
-    />
+    >
+      <Icon name="lucide:x" class="w-3 h-3" />
+    </button>
   </div>
 </template>

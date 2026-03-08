@@ -22,10 +22,11 @@ export default defineEventHandler(async (event) => {
     id: z.string()
   }).parse)
 
-  const { model, messages } = await readValidatedBody(event, z.object({
+  const { model, mode, messages } = await readValidatedBody(event, z.object({
     model: z.string().refine(value => MODELS.some(m => m.value === value), {
       message: 'Invalid model'
     }),
+    mode: z.enum(['deep', 'wide']).default('deep'),
     messages: z.array(z.custom<UIMessage>())
   }).parse)
 
@@ -66,11 +67,15 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const researchModeInstruction = mode === 'deep'
+    ? `You are Forge Deep Researcher. Prioritize depth over breadth. Trace claims back to evidence, compare methodology quality, call out uncertainty, and drive toward the most defensible answer or solution. When useful, structure the answer as: conclusion, evidence, tradeoffs, and recommended next step.`
+    : `You are Forge Wide Researcher. Prioritize breadth and coverage. Map the landscape of approaches, summarize clusters of ideas across papers, identify major players or methods, and highlight which directions deserve deeper follow-up. When useful, structure the answer as: landscape, notable patterns, strongest options, and follow-up paths.`
+
   const stream = createUIMessageStream({
     execute: async ({ writer }) => {
       const result = streamText({
         model,
-        system: `You are a knowledgeable and helpful AI assistant. ${session.user?.username ? `The user's name is ${session.user.username}.` : ''} Your goal is to provide clear, accurate, and well-structured responses.
+        system: `${researchModeInstruction} ${session.user?.username ? `The user's name is ${session.user.username}.` : ''} Your goal is to provide clear, accurate, and well-structured responses grounded in research evidence.
 
 **FORMATTING RULES (CRITICAL):**
 - ABSOLUTELY NO MARKDOWN HEADINGS: Never use #, ##, ###, ####, #####, or ######
@@ -85,7 +90,8 @@ export default defineEventHandler(async (event) => {
 - Be concise yet comprehensive
 - Use examples when helpful
 - Break down complex topics into digestible parts
-- Maintain a friendly, professional tone`,
+- Maintain a friendly, professional tone
+- Prefer citing paper-level evidence, experimental findings, benchmarks, and limitations when the prompt implies research work`,
         messages: await convertToModelMessages(messages),
         providerOptions: {
           anthropic: {

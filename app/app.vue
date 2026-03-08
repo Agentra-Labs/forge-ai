@@ -3,6 +3,12 @@ const colorMode = useColorMode()
 
 const color = computed(() => colorMode.value === 'dark' ? '#1b1718' : 'white')
 
+const htmlAttrs = {
+  lang: 'en',
+  theme: 'dim',
+  'data-theme': 'dim'
+} as any
+
 useHead({
   meta: [
     { charset: 'utf-8' },
@@ -10,11 +16,12 @@ useHead({
     { key: 'theme-color', name: 'theme-color', content: color }
   ],
   link: [
+    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+    { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap' },
     { rel: 'icon', href: '/favicon.ico' }
   ],
-  htmlAttrs: {
-    lang: 'en'
-  }
+  htmlAttrs
 })
 
 const title = 'Nuxt AI Chatbot template'
@@ -32,11 +39,11 @@ useSeoMeta({
 </script>
 
 <template>
-  <UApp :toaster="{ position: 'top-right' }" :tooltip="{ delayDuration: 200 }">
-    <NuxtLoadingIndicator color="var(--ui-primary)" />
+  <div>
+    <NuxtLoadingIndicator color="oklch(var(--p))" />
 
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-  </UApp>
+  </div>
 </template>
