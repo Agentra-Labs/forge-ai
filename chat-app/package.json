@@ -13,11 +13,6 @@
     "db:migrate": "nuxt db migrate"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.58",
-    "@ai-sdk/gateway": "^3.0.61",
-    "@ai-sdk/google": "^3.0.43",
-    "@ai-sdk/openai": "^3.0.41",
-    "@ai-sdk/vue": "^3.0.108",
     "@clerk/nuxt": "^2.0.1",
     "@iconify-json/logos": "^1.2.10",
     "@iconify-json/lucide": "^1.2.95",
@@ -28,7 +23,6 @@
     "@tailwindcss/vite": "^4.2.1",
     "@vercel/blob": "^2.3.0",
     "@vueuse/core": "^14.2.1",
-    "ai": "^6.0.108",
     "daisyui": "^5.5.19",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.45.1",

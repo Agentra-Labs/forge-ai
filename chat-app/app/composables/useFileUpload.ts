@@ -73,29 +73,39 @@ function useLocalFileUpload(options: FileUploadOptions) {
     }
 
     function onDragEnter(event: DragEvent) {
-        event.preventDefault()
-        isDragging.value = true
+        // Only trigger if dragging actual files, not text/elements
+        if (event.dataTransfer?.types.includes('Files')) {
+            event.preventDefault()
+            isDragging.value = true
+        }
     }
 
     function onDragOver(event: DragEvent) {
-        event.preventDefault()
-        isDragging.value = true
+        if (event.dataTransfer?.types.includes('Files')) {
+            event.preventDefault()
+            event.dataTransfer.dropEffect = 'copy'
+            isDragging.value = true
+        }
     }
 
     function onDragLeave(event: DragEvent) {
-        event.preventDefault()
-        const currentTarget = event.currentTarget as Node | null
-        const nextTarget = event.relatedTarget as Node | null
-        if (currentTarget && nextTarget && currentTarget.contains(nextTarget)) {
-            return
+        // Only preventDefault and change state if we were actually in a dragging state
+        if (isDragging.value) {
+            event.preventDefault()
+            // Only set isDragging to false if we're actually leaving the dropzone, 
+            // not just moving into a child element.
+            if (event.relatedTarget === null || (event.currentTarget && ! (event.currentTarget as HTMLElement).contains(event.relatedTarget as Node))) {
+                isDragging.value = false
+            }
         }
-        isDragging.value = false
     }
 
     function onDrop(event: DragEvent) {
-        event.preventDefault()
-        isDragging.value = false
-        handleFiles(event.dataTransfer?.files ?? null)
+        if (event.dataTransfer?.types.includes('Files')) {
+            event.preventDefault()
+            isDragging.value = false
+            handleFiles(event.dataTransfer?.files ?? null)
+        }
     }
 
     function attach(el: HTMLElement | null) {

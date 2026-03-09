@@ -26,6 +26,8 @@ from agents.wide_researcher import wide_researcher
 from agents.deep_researcher import deep_researcher
 from agents.paper_reader import paper_reader
 from agents.workflow_builder import workflow_builder
+from agents.title_generator import title_generator
+from agents.chat_agent import chat_agent
 from workflows.chained_research import chained_research_workflow
 from workflows.literature_review import literature_review_workflow
 
@@ -41,6 +43,8 @@ wide_researcher.db = db
 deep_researcher.db = db
 paper_reader.db = db
 workflow_builder.db = db
+title_generator.db = db
+chat_agent.db = db
 
 
 # ---------------------------------------------------------------------------
@@ -71,7 +75,7 @@ async def root():
     return {
         "name": "Forge Research Agent",
         "version": "0.1.0",
-        "agents": ["wide-researcher", "deep-researcher", "paper-reader", "workflow-builder"],
+        "agents": ["wide-researcher", "deep-researcher", "paper-reader", "workflow-builder", "title-generator", "chat-agent"],
         "workflows": ["chained-research", "literature-review"],
     }
 
@@ -87,7 +91,7 @@ async def health():
 
 agent_os = AgentOS(
     description="Forge AI Research Agent — 3 core agents + workflow builder + workflows for paper discovery and synthesis",
-    agents=[wide_researcher, deep_researcher, paper_reader, workflow_builder],
+    agents=[wide_researcher, deep_researcher, paper_reader, workflow_builder, title_generator, chat_agent],
     workflows=[chained_research_workflow, literature_review_workflow],
     base_app=base_app,
     on_route_conflict="preserve_base_app",

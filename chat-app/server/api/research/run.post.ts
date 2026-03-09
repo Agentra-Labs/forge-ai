@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
 
     const body = await readValidatedBody(event, z.object({
         goal: z.string().min(1),
-        mode: z.enum(['deep', 'wide', 'chained', 'builder']).default('deep'),
+        mode: z.enum(['deep', 'wide', 'builder']).default('deep'),
         primary_url: z.string().optional(),
         secondary_url: z.string().optional(),
         seed_arxiv_id: z.string().optional(),
@@ -45,10 +45,6 @@ export default defineEventHandler(async (event) => {
         payload.message = buildResearchPrompt(body)
     } else if (body.mode === 'deep') {
         endpoint = `${agnoBackendUrl}/agents/deep-researcher/runs`
-        payload.message = buildResearchPrompt(body)
-    } else {
-        // chained → full wide→read→deep workflow
-        endpoint = `${agnoBackendUrl}/workflows/chained-research/runs`
         payload.message = buildResearchPrompt(body)
     }
 

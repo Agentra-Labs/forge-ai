@@ -3,7 +3,7 @@
  * Single source of truth for the contract between frontend and backend.
  */
 
-export type ResearchMode = 'deep' | 'wide' | 'chained'
+export type ResearchMode = 'deep' | 'wide'
 
 export interface ResearchQuery {
     goal: string
@@ -53,6 +53,21 @@ export interface ResearchSession {
     steps: ResearchStep[]
     papers: PaperReview[]
     synthesis?: string
+}
+
+export type MessagePart = 
+    | { type: 'text', text: string }
+    | { type: 'reasoning', text: string, state: 'running' | 'done' }
+    | { type: 'file', url: string, mediaType: string }
+    | { type: 'tool-weather', invocation: any }
+    | { type: 'tool-chart', invocation: any }
+
+export interface ChatMessage {
+    id: string
+    role: 'user' | 'assistant' | 'system'
+    content?: string
+    parts: MessagePart[]
+    createdAt?: string | Date
 }
 
 /** SSE event types from the agno backend */

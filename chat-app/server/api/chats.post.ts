@@ -1,4 +1,3 @@
-import type { UIMessage } from 'ai'
 import { db, schema } from 'hub:db'
 import { z } from 'zod'
 import { getViewerIdentity } from '../utils/auth'
@@ -7,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const viewer = await getViewerIdentity(event)
   const { id, message } = await readValidatedBody(event, z.object({
     id: z.string(),
-    message: z.custom<UIMessage>()
+    message: z.any()
   }).parse)
 
   const [chat] = await db.insert(schema.chats).values({

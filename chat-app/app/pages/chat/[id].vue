@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import type { DefineComponent } from 'vue'
-import { Chat } from '@ai-sdk/vue'
-import { DefaultChatTransport } from 'ai'
-import type { UIMessage } from 'ai'
+import type { ChatMessage } from '#shared/types/research'
 import { useClipboard } from '@vueuse/core'
-import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 import { useToast } from '~/composables/useToast'
 import ProseStreamPre from '../../components/prose/PreStream.vue'
 
@@ -63,47 +60,17 @@ const chatTitle = computed(() => data.value?.title || 'Untitled chat')
 
 const input = ref('')
 
-const { csrf, headerName } = useCsrf()
+const chat = useChat(data.value.id, data.value.messages)
 
-const chat = new Chat({
-  id: data.value.id,
-  messages: data.value.messages,
-  transport: new DefaultChatTransport({
-    api: `/api/chats/${data.value.id}`,
-    headers: { [headerName]: csrf },
-    body: {
-      model: model.value,
-      mode: mode.value
-    }
-  }),
-  onData: (dataPart) => {
-    if (dataPart.type === 'data-chat-title') {
-      refreshNuxtData('chats')
-    }
-  },
-  onError(error) {
-    const { message } = typeof error.message === 'string' && error.message[0] === '{' ? JSON.parse(error.message) : error
-    toast.add({
-      description: message,
-      icon: 'i-lucide-alert-circle',
-      color: 'error',
-      duration: 0
-    })
-  }
-})
-
-const isStreaming = computed(() => (chat.status as string) === 'streaming')
+const isStreaming = computed(() => chat.isStreaming.value)
 
 async function handleSubmit(e: Event) {
   e.preventDefault()
   if (input.value.trim() && !isUploading.value) {
     const query = input.value
 
-    // Send to the standard ai-sdk chat stream
-    chat.sendMessage({
-      text: query,
-      files: uploadedFiles.value.length > 0 ? uploadedFiles.value : undefined
-    })
+    // Send to the chat stream (now using Agno backend)
+    chat.sendMessage(query, uploadedFiles.value.length > 0 ? uploadedFiles.value : undefined)
 
     // Also trigger the Agno research backend in parallel
     research.run({
@@ -118,8 +85,9 @@ async function handleSubmit(e: Event) {
 
 const copied = ref(false)
 
-function copy(e: MouseEvent, message: UIMessage) {
-  clipboard.copy(getTextFromMessage(message))
+function copy(e: MouseEvent, message: ChatMessage) {
+  const text = message.parts?.[0]?.text || message.content || ''
+  clipboard.copy(text)
 
   copied.value = true
 
@@ -127,12 +95,6 @@ function copy(e: MouseEvent, message: UIMessage) {
     copied.value = false
   }, 2000)
 }
-
-onMounted(() => {
-  if (data.value?.messages.length === 1) {
-    chat.regenerate()
-  }
-})
 </script>
 
 <template>
@@ -300,6 +262,7 @@ onMounted(() => {
                 v-model="input"
                 type="text"
                 class="input input-ghost w-full bg-transparent px-1 text-base focus:outline-none focus:bg-transparent placeholder:text-base-content/40"
+                @keydown.enter="handleSubmit"
                 :placeholder="mode === 'deep'
                   ? 'Ask for stronger evidence, edge cases, or direct paper comparisons...'
                   : 'Ask for broader coverage, more papers, or alternate solution families...'"

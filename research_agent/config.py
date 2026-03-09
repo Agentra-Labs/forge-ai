@@ -30,6 +30,7 @@ class PaperMeta(BaseModel):
     """Lightweight paper metadata returned by Wide Researcher."""
     arxiv_id: Optional[str] = None
     ss_id: Optional[str] = None
+    openalex_id: Optional[str] = None
     title: str
     authors: list[str] = Field(default_factory=list)
     abstract: str = ""
@@ -73,7 +74,7 @@ class Settings(BaseModel):
 
     # Optional provider APIs.
     anthropic_api_key: str = Field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY", ""))
-    semantic_scholar_api_key: str = Field(default_factory=lambda: os.getenv("SEMANTIC_SCHOLAR_API_KEY", ""))
+    openalex_email: str = Field(default_factory=lambda: os.getenv("OPENALEX_EMAIL", ""))
     kernel_api_key: str = Field(default_factory=lambda: os.getenv("KERNEL_API_KEY", ""))
     tinyfish_api_key: str = Field(default_factory=lambda: os.getenv("TINYFISH_API_KEY", ""))
 

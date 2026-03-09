@@ -12,12 +12,6 @@ const RESEARCH_MODES = [
         label: 'Wide Research',
         description: 'Survey the landscape quickly across papers, approaches, and signals.',
         icon: 'lucide:network'
-    },
-    {
-        value: 'chained',
-        label: 'Chained Research',
-        description: 'Full pipeline: wide scan → 3-pass reading → deep synthesis.',
-        icon: 'lucide:workflow'
     }
 ] as const
 

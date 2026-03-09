@@ -1,4 +1,4 @@
-"""Deep Researcher Agent — depth-first paper analysis using TinyFish + Semantic Scholar.
+"""Deep Researcher Agent — depth-first paper analysis using TinyFish + OpenAlex.
 
 Takes a shortlist of papers and extracts full content: methods, results, ablations,
 code links, failure modes. Returns goal-conditioned structured extraction.
@@ -7,7 +7,7 @@ code links, failure modes. Returns goal-conditioned structured extraction.
 from agno.agent import Agent
 from agno.models.aws import AwsBedrock
 
-from tools.semantic_scholar import ss_get_paper, ss_search_papers
+from tools.openalex import openalex_get_paper, openalex_search_papers
 from tools.tinyfish_tools import tinyfish_extract, tinyfish_deep_paper, tinyfish_extract_competition
 
 DEEP_SYSTEM_PROMPT = """You are the Deep Researcher — a depth-first paper analysis agent.
@@ -19,7 +19,7 @@ You are the opposite of the Wide Researcher — you go deep on a few papers rath
 **HOW YOU WORK:**
 1. Take a shortlist of papers (from Wide Researcher or directly from the user)
 2. For each paper, use TinyFish to extract full structured content from the arxiv page
-3. Use Semantic Scholar for additional metadata (citation counts, related work)
+3. Use OpenAlex for additional metadata (citation counts, related work)
 4. If the user provides a competition or problem URL, extract the constraints and requirements first
 
 **WHAT YOU EXTRACT PER PAPER:**
@@ -54,8 +54,8 @@ deep_researcher = Agent(
     name="Deep Researcher",
     model=AwsBedrock(id="amazon.nova-lite-v1:0"),
     tools=[
-        ss_get_paper,
-        ss_search_papers,
+        openalex_get_paper,
+        openalex_search_papers,
         tinyfish_extract,
         tinyfish_deep_paper,
         tinyfish_extract_competition,
