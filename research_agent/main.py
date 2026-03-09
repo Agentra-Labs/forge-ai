@@ -95,6 +95,7 @@ agent_os = AgentOS(
     workflows=[chained_research_workflow, literature_review_workflow],
     base_app=base_app,
     on_route_conflict="preserve_base_app",
+    config=os.path.join(os.path.dirname(__file__), "agentos.yaml"),
 )
 
 app = agent_os.get_app()

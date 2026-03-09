@@ -70,7 +70,14 @@ def spawn_paper_reading(content: str, goal: str) -> str:
     Returns:
         Confirmation that the paper reading has been queued.
     """
-    return f"[SPAWN:read] goal={goal}\n\n{content[:4000]}"
+    return (
+        "[SPAWN:read] Review the following paper content using the 3-pass methodology. "
+        "Base every statement strictly on this content; do not invent missing details.\n\n"
+        f"Goal: {goal}\n\n"
+        "[PAPER CONTENT START]\n"
+        f"{content[:4000]}\n"
+        "[PAPER CONTENT END]"
+    )
 
 
 @tool()

@@ -9,11 +9,56 @@ from config import settings
 
 OPENALEX_BASE = "https://api.openalex.org"
 
+_WORK_SELECT = "id,title,authorships,abstract_inverted_index,doi,ids,publication_year,cited_by_count,primary_location"
+
+
+def _normalize_arxiv_id(value: str) -> str:
+    v = value.strip().lower()
+    v = v.removeprefix("arxiv:").strip()
+    # If OpenAlex returns an arXiv URL, strip it down to the canonical ID.
+    if v.startswith("https://arxiv.org/abs/"):
+        v = v.split("https://arxiv.org/abs/", 1)[1]
+    return v
+
+
+def _extract_arxiv_id_from_ids(ids: dict | None) -> str:
+    if not ids:
+        return ""
+    arxiv = ids.get("arxiv")
+    if not arxiv:
+        return ""
+    return _normalize_arxiv_id(str(arxiv))
+
 
 def _openalex_params(params: dict) -> dict:
+    """Add mailto (polite pool) and/or api_key when configured."""
     if settings.openalex_email:
         params["mailto"] = settings.openalex_email
+    if settings.openalex_api_key:
+        params["api_key"] = settings.openalex_api_key
     return params
+
+
+def _get(url: str, params: dict) -> httpx.Response:
+    """Perform GET with OpenAlex params and clear error messages on failure."""
+    with httpx.Client(timeout=30) as client:
+        resp = client.get(url, params=_openalex_params(dict(params)))
+        try:
+            resp.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            body = ""
+            try:
+                body = resp.json()
+            except Exception:
+                body = resp.text or ""
+            msg = body.get("message", body) if isinstance(body, dict) else body
+            hint = ""
+            if resp.status_code == 429:
+                hint = " (rate limit; set OPENALEX_EMAIL and/or OPENALEX_API_KEY for higher limits)"
+            raise RuntimeError(
+                f"OpenAlex API error {resp.status_code}: {msg or e.response.status_phrase}{hint}"
+            ) from e
+        return resp
 
 
 # ---------------------------------------------------------------------------
@@ -31,18 +76,15 @@ def openalex_search_papers(query: str, limit: int = 20) -> str:
     Returns:
         JSON string with a list of paper objects containing title, authors, abstract, year, citation count.
     """
-    params = _openalex_params({
+    params = {
         "search": query,
         "per_page": min(limit, 100),
-        "select": "id,title,authorships,abstract_inverted_index,doi,ids,publication_year,cited_by_count,primary_location"
-    })
-    
-    with httpx.Client(timeout=30) as client:
-        resp = client.get(f"{OPENALEX_BASE}/works", params=params)
-        resp.raise_for_status()
-        data = resp.json()
-        results = data.get("results", [])
-        return _format_papers(results)
+        "select": _WORK_SELECT
+    }
+    resp = _get(f"{OPENALEX_BASE}/works", params)
+    data = resp.json()
+    results = data.get("results", [])
+    return _format_papers(results)
 
 
 @tool()
@@ -58,33 +100,45 @@ def openalex_get_paper(paper_id: str) -> str:
     """
     # Handle ArXiv IDs if passed directly
     if paper_id.replace(".", "").isdigit() or "arxiv" in paper_id.lower():
-        clean_id = paper_id.lower().replace("arxiv:", "").strip()
-        params = _openalex_params({
-            "filter": f"ids.arxiv:{clean_id}",
-            "select": "id,title,authorships,abstract_inverted_index,doi,ids,publication_year,cited_by_count,primary_location"
-        })
-        with httpx.Client(timeout=30) as client:
-            resp = client.get(f"{OPENALEX_BASE}/works", params=params)
-            resp.raise_for_status()
-            data = resp.json()
-            results = data.get("results", [])
-            if not results:
-                return f"No paper found with ArXiv ID: {clean_id}"
-            return _format_paper(results[0])
+        # OpenAlex does NOT support filtering on ids.arxiv. We search and then
+        # pick the exact match from returned `ids.arxiv` where possible.
+        clean_id = _normalize_arxiv_id(paper_id)
+
+        # Best-effort: arXiv papers usually have a canonical DOI mapping:
+        # 10.48550/arXiv.<id>
+        doi = f"10.48550/arXiv.{clean_id}"
+        try:
+            resp = _get(f"{OPENALEX_BASE}/works/https://doi.org/{doi}", {"select": _WORK_SELECT})
+            return _format_paper(resp.json())
+        except RuntimeError as e:
+            # If the DOI mapping doesn't exist, fall back to OpenAlex search.
+            if " 404:" not in str(e):
+                raise
+
+        params = {"search": clean_id, "per_page": 10, "select": _WORK_SELECT}
+        resp = _get(f"{OPENALEX_BASE}/works", params)
+        data = resp.json()
+        results = data.get("results", [])
+        # OpenAlex often does not include an arXiv id in `ids`, so we can't always do
+        # an exact id match. If we got anything back, present the closest hit.
+        if results:
+            return (
+                f"No direct OpenAlex DOI mapping for ArXiv ID: {clean_id}\n"
+                f"Closest OpenAlex search result:\n{_format_paper(results[0])}"
+            )
+        return f"No paper found with ArXiv ID: {clean_id}"
 
     # Handle DOI or OpenAlex ID
     target = paper_id
     if not target.startswith("https://api.openalex.org/"):
         if target.startswith("W"):
             target = f"{OPENALEX_BASE}/works/{target}"
-        elif "/" in target: # Assume DOI
+        elif "/" in target:  # Assume DOI
             target = f"{OPENALEX_BASE}/works/https://doi.org/{target}"
 
-    with httpx.Client(timeout=30) as client:
-        resp = client.get(target, params=_openalex_params({}))
-        resp.raise_for_status()
-        paper = resp.json()
-        return _format_paper(paper)
+    resp = _get(target, {})
+    paper = resp.json()
+    return _format_paper(paper)
 
 
 @tool()
@@ -104,17 +158,14 @@ def openalex_recommendations(paper_id: str, limit: int = 10) -> str:
         if "OpenAlex ID: " in paper_info:
             paper_id = paper_info.split("OpenAlex ID: ")[1].split("\n")[0].split("/")[-1]
 
-    params = _openalex_params({
+    params = {
         "filter": f"related_to:{paper_id}",
         "per_page": limit,
-        "select": "id,title,authorships,abstract_inverted_index,doi,ids,publication_year,cited_by_count,primary_location"
-    })
-    
-    with httpx.Client(timeout=30) as client:
-        resp = client.get(f"{OPENALEX_BASE}/works", params=params)
-        resp.raise_for_status()
-        data = resp.json()
-        return _format_papers(data.get("results", []))
+        "select": _WORK_SELECT
+    }
+    resp = _get(f"{OPENALEX_BASE}/works", params)
+    data = resp.json()
+    return _format_papers(data.get("results", []))
 
 
 @tool()
@@ -128,17 +179,14 @@ def openalex_citations(paper_id: str, limit: int = 20) -> str:
     Returns:
         JSON string with papers that cite the given paper.
     """
-    params = _openalex_params({
+    params = {
         "filter": f"cites:{paper_id}",
         "per_page": limit,
-        "select": "id,title,authorships,abstract_inverted_index,doi,ids,publication_year,cited_by_count,primary_location"
-    })
-    
-    with httpx.Client(timeout=30) as client:
-        resp = client.get(f"{OPENALEX_BASE}/works", params=params)
-        resp.raise_for_status()
-        data = resp.json()
-        return _format_papers(data.get("results", []))
+        "select": _WORK_SELECT
+    }
+    resp = _get(f"{OPENALEX_BASE}/works", params)
+    data = resp.json()
+    return _format_papers(data.get("results", []))
 
 
 @tool()
@@ -154,25 +202,22 @@ def openalex_references(paper_id: str, limit: int = 20) -> str:
     """
     # References in OpenAlex are available as a list of IDs on the work itself.
     # To get full metadata, we use a filter for those IDs.
-    with httpx.Client(timeout=30) as client:
-        resp = client.get(f"{OPENALEX_BASE}/works/{paper_id}", params=_openalex_params({}))
-        resp.raise_for_status()
-        data = resp.json()
-        refs = data.get("referenced_works", [])[:limit]
-        if not refs:
-            return "No references found."
-        
-        # OpenAlex filter for multiple IDs: id:W1|W2|...
-        ref_ids = "|".join(r.split("/")[-1] for r in refs)
-        params = _openalex_params({
-            "filter": f"openalex:{ref_ids}",
-            "per_page": limit,
-            "select": "id,title,authorships,abstract_inverted_index,doi,ids,publication_year,cited_by_count,primary_location"
-        })
-        resp = client.get(f"{OPENALEX_BASE}/works", params=params)
-        resp.raise_for_status()
-        data = resp.json()
-        return _format_papers(data.get("results", []))
+    resp = _get(f"{OPENALEX_BASE}/works/{paper_id}", {})
+    data = resp.json()
+    refs = data.get("referenced_works", [])[:limit]
+    if not refs:
+        return "No references found."
+
+    # OpenAlex filter for multiple IDs: openalex:W1|W2|...
+    ref_ids = "|".join(r.split("/")[-1] for r in refs)
+    params = {
+        "filter": f"openalex:{ref_ids}",
+        "per_page": limit,
+        "select": _WORK_SELECT
+    }
+    resp = _get(f"{OPENALEX_BASE}/works", params)
+    data = resp.json()
+    return _format_papers(data.get("results", []))
 
 
 # ---------------------------------------------------------------------------

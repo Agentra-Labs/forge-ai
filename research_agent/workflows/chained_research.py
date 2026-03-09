@@ -41,6 +41,14 @@ async def paper_reading_step(
     Please read through the papers mentioned above and produce review cards
     for the top 5-8 most relevant papers. Apply the 3-pass reading methodology.
     Focus on papers most likely to contribute to the user's goal.
+
+    IMPORTANT GROUNDER:
+    - Only create review cards for papers that are explicitly and unambiguously mentioned
+      in the Wide Researcher scan (with a clear title and preferably an ID like arXiv, DOI, or URL).
+    - Do NOT invent new papers, titles, authors, venues, or results that are not present
+      in the scan text.
+    - When a detail is missing (e.g. year, exact numbers), say "Unknown from provided content"
+      instead of guessing.
     """
 
     response_iter = paper_reader.arun(reading_prompt, stream=True, stream_events=True)

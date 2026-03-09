@@ -75,6 +75,7 @@ class Settings(BaseModel):
     # Optional provider APIs.
     anthropic_api_key: str = Field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY", ""))
     openalex_email: str = Field(default_factory=lambda: os.getenv("OPENALEX_EMAIL", ""))
+    openalex_api_key: str = Field(default_factory=lambda: os.getenv("OPENALEX_API_KEY", ""))
     kernel_api_key: str = Field(default_factory=lambda: os.getenv("KERNEL_API_KEY", ""))
     tinyfish_api_key: str = Field(default_factory=lambda: os.getenv("TINYFISH_API_KEY", ""))
 

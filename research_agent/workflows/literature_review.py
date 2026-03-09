@@ -45,6 +45,14 @@ async def batch_reading_step(
     - Main results
     - Limitations
 
+    IMPORTANT GROUNDER:
+    - Only review papers that are explicitly and unambiguously mentioned in the wide-scan text
+      (with a clear title and preferably an ID like arXiv, DOI, or URL).
+    - Do NOT invent additional papers, titles, authors, venues, or results that are not present
+      in the scan.
+    - When a detail is missing (e.g. year, exact numbers), say "Unknown from provided content"
+      instead of guessing.
+
     Be thorough — this is a literature review, so every paper matters.
     """
 

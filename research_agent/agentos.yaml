@@ -1,0 +1,36 @@
+available_models:
+  # Default Nova-lite used across agents
+  - "amazon.nova-lite-v1:0"
+  # Smaller / cheaper variant for quick runs
+  - "amazon.nova-micro-v1:0"
+  # Higher-end model you can enable if desired
+  - "amazon.nova-pro-v1:0"
+
+chat:
+  quick_prompts:
+    wide-researcher:
+      - "Survey the landscape of tool-using LLM agents for research workflows. Cluster by approach and give a top-10 shortlist."
+      - "Find the most-cited papers on retrieval-augmented generation (RAG) since 2020, with 1-2 lines each on why they matter."
+      - "Given the goal 'robust PDF-to-structured extraction', find key papers and benchmarks to start from."
+
+    deep-researcher:
+      - "Deep-dive on Seed ArXiv Paper: 2310.00000. Extract methods, key results (with numbers), limitations, and any code links."
+      - "Analyze these URLs to extract methods + results:\n- https://arxiv.org/abs/2305.00000\n- https://arxiv.org/abs/2401.00000"
+      - "Given this competition/problem URL, extract constraints first, then propose an approach informed by relevant papers:\nPrimary Source URL: https://example.com"
+
+    workflow-builder:
+      - "I have a seed paper. Build the minimal pipeline to find follow-up work and synthesize an integration plan.\nSeed ArXiv Paper: 2307.00000\nResearch Goal: extend the method to noisy labels"
+      - "Design a chained research run (wide → paper reading → deep) for: mechanistic interpretability of transformers."
+      - "I uploaded a PDF. Run paper reading on it, then find 10 related papers and rank them."
+
+    chat-agent:
+      - "Explain the difference between wide vs deep vs chained research in this system."
+      - "Help me phrase a strong research goal and keywords for my topic."
+
+    chained-research:
+      - "Research Goal: Build a map of the best recent methods for long-context RAG, and propose an implementable hybrid approach."
+      - "Research Goal: Find the most relevant papers to solve program synthesis with LLM tool use.\nSeed ArXiv Paper: 2302.00000"
+
+    literature-review:
+      - "Research Goal: Write a literature review on evaluation methods for LLM factuality and hallucination."
+      - "Research Goal: Survey approaches to multi-agent planning with LLMs, including benchmarks and failure modes."
