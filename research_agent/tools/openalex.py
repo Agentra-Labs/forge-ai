@@ -136,7 +136,20 @@ def openalex_get_paper(paper_id: str) -> str:
         elif "/" in target:  # Assume DOI
             target = f"{OPENALEX_BASE}/works/https://doi.org/{target}"
 
-    resp = _get(target, {})
+    try:
+        resp = _get(target, {})
+    except RuntimeError as e:
+        # If the work/DOI truly does not exist in OpenAlex, return a clear
+        # message instead of surfacing a low-level HTML 404 error.
+        if " 404:" in str(e):
+            return (
+                "No paper found for the given identifier.\n"
+                f"Original input: {paper_id}\n"
+                "Make sure this is a valid OpenAlex work ID (e.g. 'W2741809807') "
+                "or a resolvable DOI."
+            )
+        raise
+
     paper = resp.json()
     return _format_paper(paper)
 
