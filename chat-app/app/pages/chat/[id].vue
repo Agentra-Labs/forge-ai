@@ -255,7 +255,7 @@ function copy(e: MouseEvent, message: ChatMessage) {
 
               <!-- Error display -->
               <div v-if="chat.error" class="text-error text-sm mb-2 px-2">
-                An error occurred. Please try again.
+                {{ chat.error }}
               </div>
 
               <input

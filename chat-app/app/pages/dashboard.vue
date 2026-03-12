@@ -161,7 +161,7 @@ const quickChats = [
                     class="btn btn-outline btn-sm h-9 rounded-full border-base-300/60 text-xs font-normal text-base-content/75 hover:border-base-300 hover:bg-base-200"
                     @click="createChat(quickChat.label)"
                   >
-                    <Icon :name="quickChat.icon.replace('i-', '').replace('-', ':')" class="h-3.5 w-3.5" />
+                    <Icon :name="quickChat.icon" class="h-3.5 w-3.5" />
                     {{ quickChat.label }}
                   </button>
                 </div>
@@ -180,5 +180,4 @@ const quickChats = [
       </div>
     </div>
   </div>
-</template>
 </template>

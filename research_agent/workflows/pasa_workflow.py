@@ -2,9 +2,9 @@ import asyncio
 from typing import List, Optional
 
 from pydantic import BaseModel
-from research_agent.services.arxiv_client import ArxivClient, ArxivPaper
-from research_agent.services.nova_bedrock import NovaLiteClient
-from research_agent.services.supermemory import SupermemoryService
+from services.arxiv_client import ArxivClient, ArxivPaper
+from services.nova_bedrock import NovaLiteClient
+from services.supermemory import SupermemoryService
 
 
 class IngestRequest(BaseModel):

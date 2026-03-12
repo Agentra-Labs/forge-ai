@@ -40,13 +40,13 @@ export default defineEventHandler(async (event) => {
     // Title generation via Agno
     if (!chat.title) {
         try {
+            const titleForm = new FormData()
+            titleForm.append('message', JSON.stringify(messages[0]))
+            titleForm.append('stream', 'false')
+
             const titleResponse = await fetch(`${agnoBackendUrl}/agents/title-generator/runs`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: JSON.stringify(messages[0]),
-                    stream: false
-                })
+                body: titleForm
             })
 
             if (titleResponse.ok) {
@@ -68,19 +68,19 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // Proxy request to Agno chat-agent
+    // Proxy request to Agno chat-agent (Agno expects multipart/form-data)
+    const chatForm = new FormData()
+    chatForm.append('message', lastMessage.content || lastMessage.text || JSON.stringify(lastMessage.parts))
+    chatForm.append('stream', 'true')
+    chatForm.append('user_id', viewer.id)
+    chatForm.append('session_id', id as string)
+
     const response = await fetch(`${agnoBackendUrl}/agents/chat-agent/runs`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
             'Accept': 'text/event-stream'
         },
-        body: JSON.stringify({
-            message: lastMessage.content || lastMessage.text || JSON.stringify(lastMessage.parts),
-            stream: true,
-            user_id: viewer.id,
-            session_id: id // Use chat ID as session ID for persistence in Agno
-        })
+        body: chatForm
     })
 
     if (!response.ok) {

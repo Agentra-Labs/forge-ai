@@ -56,15 +56,20 @@ export function useChat(chatId: string, initialMessages: any[] = []) {
 
             const reader = response.body?.getReader()
             if (!reader) throw new Error('No reader')
+            console.log('Reader created, starting to read stream...')
 
             const decoder = new TextDecoder()
             let buffer = ''
+            let chunksReceived = 0
 
             while (true) {
                 const { done, value } = await reader.read()
                 if (done) break
 
-                buffer += decoder.decode(value, { stream: true })
+                chunksReceived++
+                const decoded = decoder.decode(value, { stream: true })
+                buffer += decoded
+                console.log('Chunk', chunksReceived, ':', decoded.substring(0, 100))
                 const lines = buffer.split('\n')
                 buffer = lines.pop() || ''
 
@@ -72,6 +77,7 @@ export function useChat(chatId: string, initialMessages: any[] = []) {
                     if (line.startsWith('data: ')) {
                         try {
                             const data = JSON.parse(line.slice(6))
+                            console.log('Parsed data:', data)
                             if (data.content) {
                                 assistantMessage.content += data.content
                                 assistantMessage.parts[0].text = assistantMessage.content
@@ -82,7 +88,9 @@ export function useChat(chatId: string, initialMessages: any[] = []) {
                     }
                 }
             }
+            console.log('Stream complete. Chunks:', chunksReceived, 'Content length:', assistantMessage.content.length)
         } catch (err: any) {
+            console.error('Chat error:', err)
             if (err.name !== 'AbortError') {
                 error.value = err.message
                 messages.value.pop() // Remove failed assistant message

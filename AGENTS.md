@@ -4,7 +4,7 @@ This document provides guidance for AI agents working in this repository.
 
 ## Project Overview
 
-This repository contains a Nuxt 4 application in `chat-app/`. It provides a research-focused chat interface with authentication, file uploads, and AI-powered research capabilities.
+This repository contains a Nuxt 4 application in `chat-app/` - a research-focused chat interface with authentication, file uploads, and AI-powered research capabilities.
 
 ## Project Structure
 
@@ -12,7 +12,7 @@ This repository contains a Nuxt 4 application in `chat-app/`. It provides a rese
 chat-app/
 ├── app/                    # Frontend source code
 │   ├── components/         # Vue components (PascalCase)
-│   ├── composables/        # Reusable client logic (camelCase, use*.ts)
+│   ├── composables/        # Reusable client logic (use*.ts)
 │   ├── layouts/            # Page layouts
 │   ├── pages/              # Route pages (file-based routing)
 │   └── assets/css/         # Global styles
@@ -48,58 +48,30 @@ pnpm db:migrate   # Apply database migrations
 ```
 
 ### Running Tests
-There is no committed unit-test suite yet. Run pre-PR validation:
+No unit-test suite is committed yet. For pre-PR validation:
 ```bash
 pnpm lint && pnpm typecheck
 ```
 
-For manual testing, use `pnpm dev` and verify the affected flow in the browser.
-
-### Editor Setup
-The project uses ESLint with Nuxt integration. Most editors will pick up the config automatically. Ensure your editor uses:
-- 2-space indentation
-- LF line endings
-- UTF-8 charset
+For manual testing, use `pnpm dev` and verify in the browser.
 
 ## Code Style Guidelines
 
 ### General Rules
-- Use **2-space indentation** (enforced by `.editorconfig`)
-- Use **LF line endings**, **UTF-8** charset
+- **2-space indentation** (enforced by `.editorconfig`)
+- **LF line endings**, **UTF-8 charset**
 - **Always include a final newline** at end of files
 - Use **TypeScript** for all new code (`.ts` files, `<script setup lang="ts">` in Vue)
 - Keep `vue/max-attributes-per-line` compliant (max 3 attributes per line)
 
-### Vue Single File Components
-```vue
-<script setup lang="ts">
-// Props with defaults using withDefaults
-withDefaults(defineProps<{
-  compact?: boolean
-}>(), {
-  compact: false
-})
-
-// Composables use camelCase
-const { mode, modes } = useResearchMode()
-</script>
-
-<template>
-  <!-- Use semantic HTML elements -->
-  <div class="...">
-    <button @click="handler">Label</button>
-  </div>
-</template>
-```
-
 ### Naming Conventions
 | Type | Convention | Example |
 |------|------------|---------|
-| Components | PascalCase | `ResearchModeSwitch.vue`, `DashboardNavbar.vue` |
-| Composables | camelCase, prefix `use` | `useResearchMode.ts`, `useChat.ts` |
+| Components | PascalCase | `ResearchModeSwitch.vue` |
+| Composables | camelCase, prefix `use` | `useResearchMode.ts` |
 | Types/Interfaces | PascalCase | `ResearchMode`, `ChatMessage` |
 | Constants | UPPER_SNAKE_CASE | `RESEARCH_MODES` |
-| Variables/Functions | camelCase | `getViewerIdentity`, `handleSubmit` |
+| Variables/Functions | camelCase | `getViewerIdentity` |
 
 ### Import Patterns
 ```typescript
@@ -107,22 +79,36 @@ const { mode, modes } = useResearchMode()
 import { db, schema } from 'hub:db'
 import { eq, desc } from 'drizzle-orm'
 
-// Composables auto-import in Vue components
-const { mode } = useResearchMode()
-
 // Icons use lucide: prefix
 <Icon name="lucide:menu" class="w-5 h-5" />
 ```
 
+### Vue Single File Components
+```vue
+<script setup lang="ts">
+withDefaults(defineProps<{
+  compact?: boolean
+}>(), {
+  compact: false
+})
+
+const { mode } = useResearchMode()
+</script>
+
+<template>
+  <div class="...">
+    <button @click="handler">Label</button>
+  </div>
+</template>
+```
+
 ### Error Handling
 ```typescript
-// Server API handlers - return data or throw
 export default defineEventHandler(async (event) => {
   try {
     const result = await doSomething()
     return result
   } catch (error) {
-    // Let Nuxt handle errors or return appropriate response
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to process request'
@@ -131,22 +117,22 @@ export default defineEventHandler(async (event) => {
 })
 ```
 
-### CSS & Styling
-- Use **Tailwind CSS** for all styling (project uses `tailwindcss` v4 and `daisyui`)
-- Prefer Tailwind utility classes over custom CSS
-- Use semantic color tokens: `bg-base-100`, `text-primary`, `border-base-300`
-- Use daisyUI components when available
-
 ### TypeScript Guidelines
 - Always define types for props, composable returns, and API responses
 - Use `type` for unions, intersections, and primitives
 - Use `interface` for object shapes that may be extended
 - Avoid `any` - use `unknown` when type is truly uncertain
 
+### CSS & Styling
+- Use **Tailwind CSS** (v4) and **daisyUI** for all styling
+- Prefer Tailwind utility classes over custom CSS
+- Use semantic color tokens: `bg-base-100`, `text-primary`, `border-base-300`
+- Use daisyUI components when available
+
 ## Security & Configuration
 
 ### Environment Variables
-Copy `chat-app/.env.example` to `chat-app/.env` for local development. Required variables:
+Copy `chat-app/.env.example` to `chat-app/.env` for local development:
 - `NUXT_SESSION_PASSWORD` - Session encryption
 - GitHub OAuth credentials for authentication
 - `AI_GATEWAY_API_KEY` for AI features
@@ -165,16 +151,9 @@ Copy `chat-app/.env.example` to `chat-app/.env` for local development. Required 
 - Optional scope: `feat(ui):`, `fix(api):`, `refactor(db):`
 - Keep commits single-purpose and focused
 
-### Pull Requests
-- Include concise summary of changes
-- Link related issue or context
-- Document commands run locally
-- Include screenshots/recordings for UI changes
-
 ### Pre-PR Checklist
 ```bash
-pnpm lint      # Must pass
-pnpm typecheck # Must pass
+pnpm lint && pnpm typecheck
 ```
 
 ## Technology Stack

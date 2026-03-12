@@ -53,14 +53,23 @@ export default defineEventHandler(async (event) => {
         payload.user_id = viewer.id
     }
 
+    // Agno expects multipart/form-data for agents, but x-www-form-urlencoded for workflows
+    const isWorkflow = body.workflow !== undefined;
+    const form = isWorkflow ? new URLSearchParams() : new FormData()
+
+    for (const [key, value] of Object.entries(payload)) {
+        if (value !== undefined && value !== null) {
+            form.append(key, String(value))
+        }
+    }
+
     // Proxy SSE stream from agno backend to the Vue client
     const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
             'Accept': 'text/event-stream'
         },
-        body: JSON.stringify(payload)
+        body: form
     })
 
     if (!response.ok) {
