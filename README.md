@@ -2,7 +2,7 @@
 
 Forge is a research-first AI workspace built to turn papers, benchmarks, and technical signals into decisions a product or engineering team can act on.
 
-The current app lives in [`chat-app/`](./chat-app) and is structured around two research modes:
+The current app lives in [`FE/`](./FE) and is structured around two research modes:
 
 - `Deep Research`: follow a focused question through methods, evidence, tradeoffs, and the strongest available answer.
 - `Wide Research`: scan the landscape quickly across papers, labs, and solution families before deciding where to go deeper.
@@ -20,8 +20,8 @@ The app workspace is built around:
 
 ## Repository Layout
 
-- [`chat-app/`](./chat-app): Nuxt application for the Forge landing page, chat interface, and proxy API
-- [`research_agent/`](./research_agent): Python/Agno backend running the agentic workflow on Amazon Nova (AWS Bedrock)
+- [`FE/`](./FE): Nuxt application for the Forge landing page, chat interface, and proxy API
+- [`BE/`](./BE): Python/Agno backend running the agentic workflow on Amazon Nova (AWS Bedrock)
 - [`LICENSE`](./LICENSE): repository license
 
 ## Local Development
@@ -32,7 +32,7 @@ Forge runs as a two-part system: a Nuxt frontend and a Python/Agno backend.
 The backend requires AWS credentials to access Amazon Nova models via Bedrock.
 
 ```bash
-cd research_agent
+cd BE
 
 # Install dependencies using uv
 uv sync
@@ -52,7 +52,7 @@ uv run python main.py
 In a new terminal window:
 
 ```bash
-cd chat-app
+cd FE
 bun install
 bun run dev
 ```
@@ -62,7 +62,7 @@ The application will be available at `http://localhost:3000`.
 ### Tooling Commands (Frontend)
 
 ```bash
-cd chat-app
+cd FE
 bun run typecheck
 bun run lint
 bun run build

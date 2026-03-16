@@ -1,0 +1,23 @@
+[project]
+name = "forge-research-agent"
+version = "0.2.0"
+description = "nova-forge research + ideate backend powered by Agentica"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "symbolica-agentica>=0.1.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "uvicorn>=0.30.0",
+    "fastapi>=0.115.0",
+    "arxiv>=2.4.1",
+    "pdfplumber>=0.11.0",
+    "requests>=2.31.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

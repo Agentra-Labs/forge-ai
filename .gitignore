@@ -1,25 +1,36 @@
-# Project ignores
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+.nuxt/
+.output/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
 .DS_Store
+Thumbs.db
 
-# Chat app outputs
-.data
-.nuxt
-.nitro
-.output
-.cache
-dist
-node_modules
-logs
-*.log
+# Letta
+.letta/
 
-# Local env files
+# Env
 .env
-.env.*
-!.env.example
+.env.local
+*.env.local
 
-# Editor state
-.fleet
-.idea
-.history
-.vercel
-.env*.local
+# DB
+*.db
+*.sqlite
+tmp/
