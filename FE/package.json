@@ -40,6 +40,8 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.15.2",
+    "@nuxt/icon": "^2.2.1",
+    "@nuxtjs/color-mode": "^4.0.0",
     "@types/node": "^24.11.0",
     "drizzle-kit": "^0.31.9",
     "eslint": "^10.0.2",

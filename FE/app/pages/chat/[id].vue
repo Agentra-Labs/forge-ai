@@ -186,14 +186,6 @@ function copy(message: ChatMessage) {
                           <p v-else-if="part.type === 'text' && message.role === 'user'" class="whitespace-pre-wrap">
                             {{ part.text }}
                           </p>
-                          <ToolWeather
-                            v-else-if="part.type === 'tool-weather'"
-                            :invocation="(part as WeatherUIToolInvocation)"
-                          />
-                          <ToolChart
-                            v-else-if="part.type === 'tool-chart'"
-                            :invocation="(part as ChartUIToolInvocation)"
-                          />
                           <FileAvatar
                             v-else-if="part.type === 'file'"
                             :name="getFileName(part.url)"
@@ -214,7 +206,7 @@ function copy(message: ChatMessage) {
                   </div>
                 </div>
 
-                <!-- Agno Research Stream -->
+                <!-- Research Stream -->
                 <div v-if="thread.researchRunning.value || thread.researchContent.value" class="flex justify-start">
                   <div class="w-full max-w-[92%] sm:max-w-[82%]">
                     <div class="mb-2 flex items-center gap-2 px-1 text-xs uppercase tracking-[0.2em] text-base-content/45">

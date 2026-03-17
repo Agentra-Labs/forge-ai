@@ -1,5 +1,5 @@
 import type { ChatMessage, ChatMode, MessagePart } from '#shared/types/research'
-import { consumeSseMessages, flushSseMessages, normalizeAgnoMessage } from '#shared/utils/agno'
+import { consumeSseMessages, flushSseMessages, normalizeBackendMessage } from '#shared/utils/backend'
 import { extractFileParts, extractTextFromParts } from '#shared/utils/chat'
 
 function buildUserMessage(text: string, files: MessagePart[] = []): ChatMessage {
@@ -90,7 +90,7 @@ export function useChat(chatId: string, initialMessages: ChatMessage[] = []) {
         buffer = parsed.buffer
 
         for (const message of parsed.messages) {
-          const normalized = normalizeAgnoMessage(message)
+          const normalized = normalizeBackendMessage(message)
           if (normalized.error) {
             throw new Error(normalized.error)
           }
@@ -106,7 +106,7 @@ export function useChat(chatId: string, initialMessages: ChatMessage[] = []) {
       }
 
       for (const message of flushSseMessages(buffer)) {
-        const normalized = normalizeAgnoMessage(message)
+        const normalized = normalizeBackendMessage(message)
         if (normalized.error) {
           throw new Error(normalized.error)
         }

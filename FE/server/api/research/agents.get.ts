@@ -1,44 +1,51 @@
 /**
  * Nitro server route: GET /api/research/agents
  *
- * Lists available research agents and workflows from the agno backend.
+ * Lists available research features from the nova-forge backend.
  */
-import { fetchAgno } from '../../utils/agno'
+import { fetchBackend } from '../../utils/backend'
 
 defineRouteMeta({
     openAPI: {
-        description: 'List available research agents and workflows.',
+        description: 'List available research features and endpoints.',
         tags: ['research']
     }
 })
 
 export default defineEventHandler(async () => {
-    const { agnoBackendUrl } = useRuntimeConfig()
+    const { backendUrl } = useRuntimeConfig()
 
     try {
-        const [agentsResponse, workflowsResponse] = await Promise.all([
-            fetchAgno(`${agnoBackendUrl}/agents`),
-            fetchAgno(`${agnoBackendUrl}/workflows`)
-        ])
+        const response = await fetchBackend(`${backendUrl}/`)
 
-        if (!agentsResponse.ok || !workflowsResponse.ok) {
-            throw new Error('Agno listing endpoint unavailable')
+        if (!response.ok) {
+            throw new Error('Backend unavailable')
         }
 
-        const [agents, workflows] = await Promise.all([
-            agentsResponse.json(),
-            workflowsResponse.json()
-        ])
+        const data = await response.json()
 
         return {
-            agents,
-            workflows,
+            agents: data.features?.research || [],
+            workflows: [],
+            ideate: data.features?.ideate || [],
             status: 'connected'
         }
     } catch {
         return {
-            agents: [],
-            workflows: [],
+            agents: [
+                'POST /research/chat',
+                'POST /research/title',
+                'POST /research/wide',
+                'POST /research/deep',
+                'POST /research/read',
+                'POST /research/plan',
+                'POST /research/run'
+            ],
+            workflows: ['chained', 'literature'],
+            ideate: [
+                'POST /ideate',
+                'GET /ideate/{job_id}'
+            ],
             status: 'disconnected'
         }
     }

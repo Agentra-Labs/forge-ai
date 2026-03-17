@@ -21,22 +21,12 @@ export const fileMessagePartSchema = z.object({
   mediaType: z.string().min(1)
 })
 
-export const weatherToolMessagePartSchema = z.object({
-  type: z.literal('tool-weather'),
-  invocation: z.unknown()
-})
 
-export const chartToolMessagePartSchema = z.object({
-  type: z.literal('tool-chart'),
-  invocation: z.unknown()
-})
 
 export const messagePartSchema = z.union([
   textMessagePartSchema,
   reasoningMessagePartSchema,
-  fileMessagePartSchema,
-  weatherToolMessagePartSchema,
-  chartToolMessagePartSchema
+  fileMessagePartSchema
 ])
 
 export const chatMessageSchema = z.object({

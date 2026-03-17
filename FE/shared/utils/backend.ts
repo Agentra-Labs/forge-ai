@@ -1,15 +1,20 @@
+/**
+ * SSE utilities for the nova-forge backend.
+ *
+ * The backend streams SSE with simple data-only format:
+ *   data: {"content": "chunk text"}
+ *   data: [DONE]
+ */
+
 export interface SseMessage {
   event?: string
   data: string
 }
 
-export interface AgnoNormalizedMessage {
+export interface BackendNormalizedMessage {
   event?: string
   content?: string
   error?: string
-  stepName?: string
-  runId?: string
-  workflowId?: string
   done: boolean
   raw: unknown
 }
@@ -72,16 +77,7 @@ export function flushSseMessages(buffer: string): SseMessage[] {
   return message ? [message] : []
 }
 
-export function extractAgnoContent(payload: unknown): string | undefined {
-  if (!isRecord(payload)) {
-    return getString(payload)
-  }
-
-  const nestedData = isRecord(payload.data) ? payload.data : undefined
-  return getString(payload.content) ?? getString(nestedData?.content)
-}
-
-export function normalizeAgnoMessage(message: SseMessage): AgnoNormalizedMessage {
+export function normalizeBackendMessage(message: SseMessage): BackendNormalizedMessage {
   const rawData = message.data.trim()
   if (!rawData) {
     return {
@@ -91,6 +87,7 @@ export function normalizeAgnoMessage(message: SseMessage): AgnoNormalizedMessage
     }
   }
 
+  // [DONE] marker signals end of stream
   if (rawData === '[DONE]') {
     return {
       event: message.event,
@@ -103,6 +100,7 @@ export function normalizeAgnoMessage(message: SseMessage): AgnoNormalizedMessage
   try {
     payload = JSON.parse(rawData)
   } catch {
+    // Plain text response
     return {
       event: message.event,
       content: rawData,
@@ -111,26 +109,25 @@ export function normalizeAgnoMessage(message: SseMessage): AgnoNormalizedMessage
     }
   }
 
-  const event = message.event || (isRecord(payload) ? getString(payload.event) : undefined)
-  const nestedData = isRecord(payload) && isRecord(payload.data) ? payload.data : undefined
-  const content = extractAgnoContent(payload)
-  const error = getString(isRecord(payload) ? payload.message : undefined)
-    ?? getString(nestedData?.message)
-  const stepName = getString(isRecord(payload) ? payload.step_name : undefined)
-    ?? getString(nestedData?.step_name)
-  const runId = getString(isRecord(payload) ? payload.run_id : undefined)
-    ?? getString(nestedData?.run_id)
-  const workflowId = getString(isRecord(payload) ? payload.workflow_id : undefined)
-    ?? getString(nestedData?.workflow_id)
+  // Extract content/error from JSON payload
+  const content = isRecord(payload) ? getString(payload.content) : undefined
+  const error = isRecord(payload) ? getString(payload.error) : undefined
 
   return {
-    event,
+    event: message.event,
     content,
     error,
-    stepName,
-    runId,
-    workflowId,
     done: false,
     raw: payload
   }
 }
+
+// Legacy aliases for backward compatibility
+export const extractAgnoContent = (payload: unknown): string | undefined => {
+  if (!isRecord(payload)) {
+    return getString(payload)
+  }
+  return getString(payload.content)
+}
+
+export const normalizeAgnoMessage = normalizeBackendMessage

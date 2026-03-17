@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const sidebarOpen = useState<boolean>('sidebar-open', () => false)
-const { mode } = useResearchMode()
+const { mode, currentModeInfo, isIdeateMode } = useResearchMode()
 </script>
 
 <template>
@@ -12,9 +12,10 @@ const { mode } = useResearchMode()
         </button>
       </div>
       <div class="px-2">
-        <div class="hidden w-fit rounded-full border border-base-300 bg-base-100 px-2.5 py-1 text-[11px] font-medium text-base-content/80 shadow-sm sm:inline-flex sm:items-center sm:gap-1.5">
-          <Icon name="lucide:sparkles" class="h-3.5 w-3.5 text-primary" />
-          Forge Research · {{ mode === 'deep' ? 'Deep mode' : 'Wide mode' }}
+        <div class="hidden w-fit rounded-full border px-2.5 py-1 text-[11px] font-medium shadow-sm sm:inline-flex sm:items-center sm:gap-1.5"
+             :class="isIdeateMode ? 'border-primary/40 bg-primary/10 text-primary' : 'border-base-300 bg-base-100 text-base-content/80'">
+          <Icon :name="currentModeInfo.icon" class="h-3.5 w-3.5" :class="isIdeateMode ? '' : 'text-primary'" />
+          Forge · {{ currentModeInfo.label }}
         </div>
       </div>
       <div class="flex-none gap-2">

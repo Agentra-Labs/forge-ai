@@ -33,10 +33,10 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    agnoBackendUrl: process.env.AGNO_BACKEND_URL || "http://localhost:7777",
+    backendUrl: process.env.BACKEND_URL || "http://localhost:7777",
     supermemoryApiKey: process.env.SUPERMEMORY_API_KEY || "",
     public: {
-      agentUrl: process.env.AGENT_URL || "http://localhost:7777",
+      backendUrl: process.env.BACKEND_URL || "http://localhost:7777",
     },
   },
 

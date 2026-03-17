@@ -1,10 +1,10 @@
 /**
- * TypeScript interfaces mirroring the Python research agent models.
+ * TypeScript interfaces for the nova-forge backend.
  * Single source of truth for the contract between frontend and backend.
  */
 
 export type ChatMode = 'deep' | 'wide'
-export type ResearchMode = ChatMode | 'builder'
+export type ResearchMode = ChatMode | 'builder' | 'read' | 'ideate'
 
 export interface ResearchQuery {
     goal: string
@@ -60,6 +60,7 @@ export type MessagePart =
     | { type: 'text', text: string }
     | { type: 'reasoning', text: string, state: 'running' | 'done' }
     | { type: 'file', url: string, mediaType: string }
+    | { type: 'paper', paper: PaperReview }
     | { type: 'tool-weather', invocation: any }
     | { type: 'tool-chart', invocation: any }
 
@@ -71,12 +72,25 @@ export interface ChatMessage {
     createdAt?: string | Date
 }
 
-/** SSE event types from the agno backend */
-export type AgnoSSEEvent =
-    | { event: 'RunStarted', data: { run_id: string } }
-    | { event: 'RunResponse', data: { content: string, content_type: string } }
-    | { event: 'RunCompleted', data: { content: string } }
-    | { event: 'RunError', data: { message: string } }
-    | { event: 'WorkflowStarted', data: { workflow_id: string, step_name: string } }
-    | { event: 'WorkflowStepCompleted', data: { step_name: string, content: string } }
-    | { event: 'WorkflowCompleted', data: { content: string } }
+/** Ideate job status from GET /ideate/{job_id} */
+export interface IdeateJob {
+    status: 'queued' | 'running' | 'completed' | 'failed'
+    result: string | null
+    error: string | null
+}
+
+/** Ideate job creation response from POST /ideate */
+export interface IdeateJobStart {
+    job_id: string
+    arxiv_id: string
+    status: 'queued'
+}
+
+/** Pipeline phase info for visualization */
+export interface PipelinePhase {
+    id: string
+    name: string
+    description: string
+    status: 'pending' | 'running' | 'completed' | 'failed'
+    duration?: number
+}

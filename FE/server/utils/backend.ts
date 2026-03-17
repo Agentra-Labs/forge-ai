@@ -1,31 +1,31 @@
 import type { MessagePart } from '#shared/types/research'
 import { buildPromptFromParts } from '#shared/utils/chat'
 
-const AGNO_TIMEOUT_MS = 180_000
+const BACKEND_TIMEOUT_MS = 300_000 // 5 minutes for long research workflows
 
-export async function fetchAgno(endpoint: string, init: RequestInit = {}) {
+export async function fetchBackend(endpoint: string, init: RequestInit = {}) {
   try {
     return await fetch(endpoint, {
       ...init,
-      signal: AbortSignal.timeout(AGNO_TIMEOUT_MS)
+      signal: AbortSignal.timeout(BACKEND_TIMEOUT_MS)
     })
   } catch (error) {
     const name = (error as Error).name
     if (name === 'TimeoutError') {
       throw createError({
         statusCode: 504,
-        statusMessage: 'Agno backend timed out'
+        statusMessage: 'Backend timed out'
       })
     }
 
     throw createError({
       statusCode: 502,
-      statusMessage: 'Unable to reach Agno backend'
+      statusMessage: 'Unable to reach backend'
     })
   }
 }
 
-export async function ensureAgnoOk(response: Response, context: string) {
+export async function ensureBackendOk(response: Response, context: string) {
   if (response.ok) {
     return response
   }
@@ -33,7 +33,7 @@ export async function ensureAgnoOk(response: Response, context: string) {
   const errorText = await response.text()
   throw createError({
     statusCode: response.status,
-    statusMessage: `${context}: ${errorText || 'Unknown Agno backend error'}`
+    statusMessage: `${context}: ${errorText || 'Unknown backend error'}`
   })
 }
 

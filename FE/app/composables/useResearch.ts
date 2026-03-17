@@ -1,5 +1,5 @@
 import type { ResearchMode } from '#shared/types/research'
-import { consumeSseMessages, flushSseMessages, normalizeAgnoMessage } from '#shared/utils/agno'
+import { consumeSseMessages, flushSseMessages, normalizeBackendMessage } from '#shared/utils/backend'
 
 interface ResearchStep {
   name: string
@@ -37,40 +37,15 @@ export function useResearch(options: UseResearchOptions = {}) {
     return nextStep
   }
 
-  function handleNormalizedMessage(message: ReturnType<typeof normalizeAgnoMessage>) {
+  function handleNormalizedMessage(message: ReturnType<typeof normalizeBackendMessage>) {
     if (message.error) {
-      const runningStep = [...steps.value].reverse().find(step => step.status === 'running')
-      if (runningStep) {
-        runningStep.status = 'failed'
-      }
       error.value = message.error
+      options.onError?.(message.error)
       return
     }
 
-    if (message.event === 'RunStarted' || message.runId) {
-      currentStep.value = 'Starting research...'
-    }
-
-    if (message.event === 'WorkflowStarted' || message.workflowId) {
-      const stepName = message.stepName || 'Workflow step'
-      currentStep.value = stepName
-      upsertStep(stepName, 'running')
-      return
-    }
-
-    if (message.event === 'WorkflowStepCompleted') {
-      const stepName = message.stepName || 'Workflow step'
-      const step = upsertStep(stepName, 'completed', message.content || '')
-      options.onStep?.(step)
-      currentStep.value = ''
-      return
-    }
-
-    if (message.event === 'RunCompleted' || message.event === 'WorkflowCompleted') {
-      if (message.content) {
-        content.value = message.content
-      }
-      currentStep.value = ''
+    if (message.done) {
+      options.onComplete?.(content.value)
       return
     }
 
@@ -146,12 +121,12 @@ export function useResearch(options: UseResearchOptions = {}) {
         buffer = parsed.buffer
 
         for (const message of parsed.messages) {
-          handleNormalizedMessage(normalizeAgnoMessage(message))
+          handleNormalizedMessage(normalizeBackendMessage(message))
         }
       }
 
       for (const message of flushSseMessages(buffer)) {
-        handleNormalizedMessage(normalizeAgnoMessage(message))
+        handleNormalizedMessage(normalizeBackendMessage(message))
       }
 
       if (runId === activeRunId) {
