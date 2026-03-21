@@ -1,17 +1,22 @@
-import { sqliteTable, text, integer, index, uniqueIndex } from 'drizzle-orm/sqlite-core'
+import { pgTable, text, timestamp, uuid, index, uniqueIndex, pgEnum, jsonb } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
+// Define Enums
+export const chatModeEnum = pgEnum('chat_mode', ['deep', 'wide'])
+export const messageRoleEnum = pgEnum('message_role', ['user', 'assistant', 'system'])
+export const providerEnum = pgEnum('provider', ['google'])
+
 const timestamps = {
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date())
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
 }
 
-export const users = sqliteTable('users', {
-  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+export const users = pgTable('users', {
+  id: uuid('id').primaryKey().defaultRandom(),
   email: text('email').notNull(),
   name: text('name').notNull(),
   avatar: text('avatar').notNull(),
   username: text('username').notNull(),
-  provider: text('provider', { enum: ['google'] }).notNull(),
+  provider: providerEnum('provider').notNull(),
   providerId: text('provider_id').notNull(),
   ...timestamps
 }, table => [
@@ -22,11 +27,11 @@ export const usersRelations = relations(users, ({ many }) => ({
   chats: many(chats)
 }))
 
-export const chats = sqliteTable('chats', {
-  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+export const chats = pgTable('chats', {
+  id: uuid('id').primaryKey().defaultRandom(),
   title: text('title'),
-  mode: text('mode', { enum: ['deep', 'wide'] }).notNull().default('deep'),
-  userId: text('user_id').notNull(),
+  mode: chatModeEnum('mode').notNull().default('deep'),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   ...timestamps
 }, table => [
   index('chats_user_id_idx').on(table.userId)
@@ -40,11 +45,11 @@ export const chatsRelations = relations(chats, ({ one, many }) => ({
   messages: many(messages)
 }))
 
-export const messages = sqliteTable('messages', {
-  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  chatId: text('chat_id').notNull().references(() => chats.id, { onDelete: 'cascade' }),
-  role: text('role', { enum: ['user', 'assistant', 'system'] }).notNull(),
-  parts: text('parts', { mode: 'json' }),
+export const messages = pgTable('messages', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  chatId: uuid('chat_id').notNull().references(() => chats.id, { onDelete: 'cascade' }),
+  role: messageRoleEnum('role').notNull(),
+  parts: jsonb('parts'),
   ...timestamps
 }, table => [
   index('messages_chat_id_idx').on(table.chatId)

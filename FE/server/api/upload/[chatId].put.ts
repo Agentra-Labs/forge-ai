@@ -1,5 +1,5 @@
-import { blob } from 'hub:blob'
-import { db, schema } from 'hub:db'
+import { blob } from '../../utils/blob'
+import { db, schema } from '../../utils/db'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { requireAuthenticatedViewer } from '../../utils/auth'

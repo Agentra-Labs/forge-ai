@@ -7,7 +7,6 @@ export default defineNuxtConfig({
     "@nuxt/icon",
     "@nuxtjs/color-mode",
     "@nuxtjs/mdc",
-    "@nuxthub/core",
     "nuxt-charts",
     "nuxt-csurf",
   ],
@@ -53,11 +52,6 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
-  },
-
-  hub: {
-    db: "sqlite",
-    blob: true,
   },
 
   vite: {

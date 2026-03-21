@@ -1,4 +1,4 @@
-import { blob } from 'hub:blob'
+import { blob } from '../../utils/blob'
 import { z } from 'zod'
 import { requireAuthenticatedViewer } from '../../utils/auth'
 

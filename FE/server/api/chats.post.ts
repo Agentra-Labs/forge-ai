@@ -1,4 +1,4 @@
-import { db, schema } from 'hub:db'
+import { db, schema } from '../utils/db'
 import { createChatRequestSchema } from '#shared/utils/chat'
 import { getViewerIdentity } from '../utils/auth'
 
