@@ -26,11 +26,10 @@ Thumbs.db
 .letta/
 
 # Env
-.env
-.env.local
 *.env.local
 
 # DB
 *.db
 *.sqlite
 tmp/
+config.bat

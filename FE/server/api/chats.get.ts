@@ -1,4 +1,4 @@
-import { db, schema } from 'hub:db'
+import { db, schema } from '../utils/db'
 import { eq, desc } from 'drizzle-orm'
 import { getViewerIdentity } from '../utils/auth'
 
